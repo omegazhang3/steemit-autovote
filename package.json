@@ -1,0 +1,13 @@
+{
+  "name": "steem-auto-voter",
+  "version": "1.0.0",
+  "description": "Auto-vote latest articles from specified Steem authors",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "steem": "^0.7.9",
+    "dotenv": "^16.3.1"
+  }
+}
