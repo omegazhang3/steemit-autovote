@@ -33,6 +33,10 @@ cp .env.example .env
 | `VOTE_DELAY_MS` | 点赞间隔（毫秒） |
 | `SCAN_INTERVAL_MINUTES` | 扫描间隔（分钟） |
 
+## 热重载
+
+运行期间修改 `.env` 文件，下次扫描自动生效，无需重启。
+
 ## 使用
 
 ```bash

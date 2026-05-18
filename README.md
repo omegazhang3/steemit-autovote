@@ -33,6 +33,10 @@ Edit `.env` with your credentials:
 | `VOTE_DELAY_MS` | Delay between votes (ms) |
 | `SCAN_INTERVAL_MINUTES` | How often to scan (minutes) |
 
+## Hot Reload
+
+Modify `.env` while the bot is running — changes take effect on the next scan cycle. No restart required.
+
 ## Usage
 
 ```bash

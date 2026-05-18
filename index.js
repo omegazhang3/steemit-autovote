@@ -1,29 +1,59 @@
 require('dotenv').config();
 const steem = require('steem');
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
 
-const {
-  STEEM_USERNAME,
-  STEEM_POSTING_KEY,
-  VOTE_AUTHORS,
-  VOTE_WEIGHT,
-  POSTS_LIMIT,
-  STEEM_API_URL,
-  VOTE_DELAY_MS,
-} = process.env;
-
-if (!STEEM_USERNAME || !STEEM_POSTING_KEY || !VOTE_AUTHORS) {
-  console.error('Missing required config. Check .env file.');
-  process.exit(1);
+// 从 .env 读取配置（支持热重载）
+function loadConfig() {
+  const envPath = path.join(__dirname, '.env');
+  const result = dotenv.config({ path: envPath, override: true });
+  if (result.error) {
+    console.error('❌ Failed to load .env:', result.error.message);
+    return null;
+  }
+  return result.parsed;
 }
 
-steem.api.setOptions({ url: STEEM_API_URL || 'https://api.steemit.com' });
+let voter, wif, authors, weight, limit, delay, intervalMinutes;
 
-const voter = STEEM_USERNAME;
-const wif = STEEM_POSTING_KEY;
-const authors = [voter, ...VOTE_AUTHORS.split(',').map(a => a.trim()).filter(a => a && a !== voter)];
-const weight = parseInt(VOTE_WEIGHT, 10) || 10000;
-const limit = parseInt(POSTS_LIMIT, 10) || 5;
-const delay = parseInt(VOTE_DELAY_MS, 10) || 5000;
+function applyConfig() {
+  const config = loadConfig();
+  if (!config) return false;
+
+  const {
+    STEEM_USERNAME,
+    STEEM_POSTING_KEY,
+    VOTE_AUTHORS,
+    VOTE_WEIGHT,
+    POSTS_LIMIT,
+    STEEM_API_URL,
+    VOTE_DELAY_MS,
+    SCAN_INTERVAL_MINUTES,
+  } = process.env;
+
+  if (!STEEM_USERNAME || !STEEM_POSTING_KEY || !VOTE_AUTHORS) {
+    console.error('❌ Missing required config. Check .env file.');
+    return false;
+  }
+
+  steem.api.setOptions({ url: STEEM_API_URL || 'https://api.steemit.com' });
+
+  voter = STEEM_USERNAME;
+  wif = STEEM_POSTING_KEY;
+  authors = [voter, ...VOTE_AUTHORS.split(',').map(a => a.trim()).filter(a => a && a !== voter)];
+  weight = parseInt(VOTE_WEIGHT, 10) || 10000;
+  limit = parseInt(POSTS_LIMIT, 10) || 5;
+  delay = parseInt(VOTE_DELAY_MS, 10) || 5000;
+  intervalMinutes = parseInt(SCAN_INTERVAL_MINUTES, 10) || 20;
+
+  return true;
+}
+
+// 初始加载配置
+if (!applyConfig()) {
+  process.exit(1);
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -121,10 +151,10 @@ async function claimRewards() {
   }
 }
 
-const intervalMinutes = parseInt(process.env.SCAN_INTERVAL_MINUTES, 10) || 20;
-const INTERVAL_MS = intervalMinutes * 60 * 1000;
-
 async function run() {
+  // 每次运行前重新加载配置，修改 .env 后无需重启
+  applyConfig();
+
   console.log(`\n🔍 [${new Date().toLocaleString()}] === Scanning ===`);
   console.log(`👤 Voter: @${voter}`);
   console.log(`📋 Authors: ${authors.map(a => '@' + a).join(', ')}`);
@@ -139,11 +169,19 @@ async function run() {
   console.log(`\n⏱️  Next scan in ${intervalMinutes} minutes...`);
 }
 
-run().then(() => {
-  setInterval(() => {
-    run().catch(err => console.error('Error during scan:', err));
-  }, INTERVAL_MS);
-}).catch(err => {
+// 使用 setTimeout 递归调用，支持动态调整间隔
+async function startLoop() {
+  await run();
+  const scheduleNext = () => {
+    setTimeout(async () => {
+      await run();
+      scheduleNext();
+    }, intervalMinutes * 60 * 1000);
+  };
+  scheduleNext();
+}
+
+startLoop().catch(err => {
   console.error('Fatal error:', err);
   process.exit(1);
 });
