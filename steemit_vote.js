@@ -15,7 +15,48 @@ function loadConfig() {
   return result.parsed;
 }
 
+// 节点管理器
+class NodeManager {
+  constructor(nodesList) {
+    this.nodes = nodesList;
+    this.currentIndex = 0;
+    this.consecutiveFailures = 0;
+    this.maxFailuresPerNode = 3;
+  }
+
+  get currentNode() {
+    return this.nodes[this.currentIndex];
+  }
+
+  reportFailure() {
+    this.consecutiveFailures++;
+    if (this.consecutiveFailures >= this.maxFailuresPerNode) {
+      const oldNode = this.currentNode;
+      this.currentIndex = (this.currentIndex + 1) % this.nodes.length;
+      this.consecutiveFailures = 0;
+      console.warn(`🔄 Node ${oldNode} failed ${this.maxFailuresPerNode}x, switching to ${this.currentNode}`);
+      return true;
+    }
+    return false;
+  }
+
+  reportSuccess() {
+    this.consecutiveFailures = 0;
+  }
+
+  updateNodes(nodesList) {
+    if (JSON.stringify(nodesList) !== JSON.stringify(this.nodes)) {
+      console.log(`📝 Node list updated: ${nodesList.join(', ')}`);
+      this.nodes = nodesList;
+      if (this.currentIndex >= this.nodes.length) {
+        this.currentIndex = 0;
+      }
+    }
+  }
+}
+
 let voter, wif, authors, weight, limit, delay, intervalMinutes;
+let nodeMgr;
 
 function applyConfig() {
   const config = loadConfig();
@@ -37,7 +78,20 @@ function applyConfig() {
     return false;
   }
 
-  steem.api.setOptions({ url: STEEM_API_URL || 'https://api.steemit.com' });
+  // 解析多个节点
+  const nodesList = (STEEM_API_URL || 'https://api.steemit.com')
+    .split(',')
+    .map(n => n.trim())
+    .filter(Boolean);
+
+  if (!nodeMgr) {
+    nodeMgr = new NodeManager(nodesList);
+    console.log(`🚀 Starting with node: ${nodeMgr.currentNode} (${nodeMgr.nodes.length} nodes available)`);
+  } else {
+    nodeMgr.updateNodes(nodesList);
+  }
+
+  steem.api.setOptions({ url: nodeMgr.currentNode });
 
   voter = STEEM_USERNAME;
   wif = STEEM_POSTING_KEY;
@@ -65,10 +119,15 @@ async function getLatestPost(author) {
       tag: author,
       limit: 10,
     });
-    // Return only the latest post authored by this person (skip resteems)
+    nodeMgr.reportSuccess();
     return posts.find(p => p.author === author) || null;
   } catch (err) {
-    console.error(`Failed to fetch posts for @${author}:`, err.message);
+    console.error(`❌ Failed to fetch posts for @${author}:`, err.message);
+    const switched = nodeMgr.reportFailure();
+    if (switched) {
+      steem.api.setOptions({ url: nodeMgr.currentNode });
+      console.log(`🔌 Reconnected to ${nodeMgr.currentNode}`);
+    }
     return null;
   }
 }
@@ -112,9 +171,15 @@ async function processAuthor(author) {
   try {
     console.log(`  🗳️  Voting (${weight / 100}%)...`);
     await vote(author, post.permlink);
+    nodeMgr.reportSuccess();
     console.log(`  ✅ Vote successful!`);
   } catch (err) {
     console.error(`  ❌ Vote failed: ${err.message || JSON.stringify(err)}`);
+    const switched = nodeMgr.reportFailure();
+    if (switched) {
+      steem.api.setOptions({ url: nodeMgr.currentNode });
+      console.log(`🔌 Reconnected to ${nodeMgr.currentNode}`);
+    }
   }
 }
 
@@ -146,8 +211,14 @@ async function claimRewards() {
       });
     });
     console.log(`  ✅ Rewards claimed!`);
+    nodeMgr.reportSuccess();
   } catch (err) {
     console.error(`  ❌ Claim failed: ${err.message || JSON.stringify(err)}`);
+    const switched = nodeMgr.reportFailure();
+    if (switched) {
+      steem.api.setOptions({ url: nodeMgr.currentNode });
+      console.log(`🔌 Reconnected to ${nodeMgr.currentNode}`);
+    }
   }
 }
 
