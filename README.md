@@ -70,10 +70,10 @@ source venv/bin/activate
 pip install beem python-dotenv
 
 # Run
-python3 hive_blog_robot.py
+python3 hive_vote.py
 
 # Background
-nohup venv/bin/python3 hive_blog_robot.py &
+nohup venv/bin/python3 hive_vote.py &
 
 # Logs
 tail -f hiveBlogOutput.log

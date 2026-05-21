@@ -70,10 +70,10 @@ source venv/bin/activate
 pip install beem python-dotenv
 
 # 运行
-python3 hive_blog_robot.py
+python3 hive_vote.py
 
 # 后台运行
-nohup venv/bin/python3 hive_blog_robot.py &
+nohup venv/bin/python3 hive_vote.py &
 
 # 查看日志
 tail -f hiveBlogOutput.log
