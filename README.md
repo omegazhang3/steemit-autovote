@@ -33,7 +33,7 @@ Edit `.env` with your credentials:
 | `STEEM_POSTING_KEY` | Posting private key (WIF format, starts with 5...) |
 | `VOTE_AUTHORS` | Comma-separated authors to vote |
 | `VOTE_WEIGHT` | Vote weight: 10000 = 100%, 5000 = 50% |
-| `STEEM_API_URL` | API node URL |
+| `STEEM_API_URL` | Comma-separated API nodes for failover |
 | `VOTE_DELAY_MS` | Delay between votes (ms) |
 | `SCAN_INTERVAL_MINUTES` | How often to scan (minutes) |
 

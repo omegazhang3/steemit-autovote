@@ -33,7 +33,7 @@ cp .env.example .env
 | `STEEM_POSTING_KEY` | Posting 私钥（WIF 格式，以 5 开头） |
 | `VOTE_AUTHORS` | 要点赞的作者，逗号分隔 |
 | `VOTE_WEIGHT` | 点赞权重：10000 = 100%，5000 = 50% |
-| `STEEM_API_URL` | API 节点地址 |
+| `STEEM_API_URL` | API 节点列表，逗号分隔，自动故障切换 |
 | `VOTE_DELAY_MS` | 点赞间隔（毫秒） |
 | `SCAN_INTERVAL_MINUTES` | 扫描间隔（分钟） |
 
