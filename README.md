@@ -55,10 +55,10 @@ Edit `.env` with your credentials:
 node steemit_vote.js
 
 # Background
-nohup node steemit_vote.js >> vote.log 2>&1 &
+nohup node steemit_vote.js >> steemit_vote.log 2>&1 &
 
 # Logs
-tail -f vote.log
+tail -f steemit_vote.log
 ```
 
 ### Hive
@@ -76,7 +76,7 @@ python3 hive_vote.py
 nohup venv/bin/python3 hive_vote.py &
 
 # Logs
-tail -f hiveBlogOutput.log
+tail -f hive_steemit_vote.log
 ```
 
 ## Security

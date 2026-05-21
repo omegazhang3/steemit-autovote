@@ -55,10 +55,10 @@ cp .env.example .env
 node steemit_vote.js
 
 # 后台运行
-nohup node steemit_vote.js >> vote.log 2>&1 &
+nohup node steemit_vote.js >> steemit_vote.log 2>&1 &
 
 # 查看日志
-tail -f vote.log
+tail -f steemit_vote.log
 ```
 
 ### Hive
@@ -76,7 +76,7 @@ python3 hive_vote.py
 nohup venv/bin/python3 hive_vote.py &
 
 # 查看日志
-tail -f hiveBlogOutput.log
+tail -f hive_steemit_vote.log
 ```
 
 ## 安全提醒

@@ -79,7 +79,7 @@ class NodeManager:
 log_format = "%(asctime)s - %(levelname)s - %(message)s"
 date_format = "%Y-%m-%d %H:%M:%S"
 formatter = logging.Formatter(fmt=log_format, datefmt=date_format)
-file_handler = logging.FileHandler("hiveBlogOutput.log")
+file_handler = logging.FileHandler("hive_vote.log")
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 logger = logging.getLogger()
