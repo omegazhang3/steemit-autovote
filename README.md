@@ -1,8 +1,8 @@
-# Steemit Auto-Vote
+# Steemit & Hive Auto-Vote
 
 **[English](README.md)** | **[中文](README_CN.md)**
 
-Auto-vote the latest articles from specified Steem authors and claim pending rewards.
+Auto-vote the latest articles from specified Steem/Hive authors and claim pending rewards.
 
 ## Features
 
@@ -11,6 +11,8 @@ Auto-vote the latest articles from specified Steem authors and claim pending rew
 - 🎁 Auto-claim pending rewards (STEEM, SBD, VESTS)
 - ⏭️ Skip already-voted and expired (>7 days) posts
 - ⏱️ Configurable scan interval for continuous monitoring
+- 🐝 **Hive support** — auto-vote Hive bloggers with node failover
+- 🔄 Hot reload — modify `.env` while running, no restart needed
 
 ## Setup
 
@@ -23,6 +25,8 @@ cp .env.example .env
 
 Edit `.env` with your credentials:
 
+### Steem
+
 | Variable | Description |
 |----------|-------------|
 | `STEEM_USERNAME` | Your Steem username (without @) |
@@ -33,21 +37,46 @@ Edit `.env` with your credentials:
 | `VOTE_DELAY_MS` | Delay between votes (ms) |
 | `SCAN_INTERVAL_MINUTES` | How often to scan (minutes) |
 
-## Hot Reload
+### Hive
 
-Modify `.env` while the bot is running — changes take effect on the next scan cycle. No restart required.
+| Variable | Description |
+|----------|-------------|
+| `HIVE_ACCOUNT` | Your Hive username (without @) |
+| `HIVE_POSTING_KEY` | Hive posting private key (WIF format) |
+| `HIVE_API_URL` | Comma-separated API nodes for failover |
+| `HIVE_FOLLOWING` | Authors to vote: `user1:weight1,user2:weight2` |
+| `HIVE_VOTE_INTERVAL` | Vote interval in minutes |
 
 ## Usage
 
+### Steem
+
 ```bash
-# Run (scans once, then repeats every SCAN_INTERVAL_MINUTES)
 node index.js
 
-# Run in background
+# Background
 nohup node index.js >> vote.log 2>&1 &
 
-# Check logs
+# Logs
 tail -f vote.log
+```
+
+### Hive
+
+```bash
+# Install Python dependencies
+python3 -m venv venv
+source venv/bin/activate
+pip install beem python-dotenv
+
+# Run
+python3 hive_blog_robot.py
+
+# Background
+nohup venv/bin/python3 hive_blog_robot.py &
+
+# Logs
+tail -f hiveBlogOutput.log
 ```
 
 ## Security

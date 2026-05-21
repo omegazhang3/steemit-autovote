@@ -1,8 +1,8 @@
-# Steemit 自动点赞
+# Steemit & Hive 自动点赞
 
 **[English](README.md)** | **[中文](README_CN.md)**
 
-自动为指定 Steem 作者的最新文章点赞，并自动领取待领奖励。
+自动为指定 Steem/Hive 作者的最新文章点赞，并自动领取待领奖励。
 
 ## 功能
 
@@ -11,6 +11,8 @@
 - 🎁 自动领取待领奖励（STEEM、SBD、VESTS）
 - ⏭️ 跳过已点赞和过期（>7天）的文章
 - ⏱️ 可配置扫描间隔，持续监控
+- 🐝 **Hive 支持** — 自动点赞 Hive 博客，支持节点故障切换
+- 🔄 热重载 — 运行期间修改 `.env` 自动生效，无需重启
 
 ## 安装
 
@@ -23,6 +25,8 @@ cp .env.example .env
 
 编辑 `.env` 填入你的配置：
 
+### Steem
+
 | 变量 | 说明 |
 |------|------|
 | `STEEM_USERNAME` | Steem 用户名（不带 @） |
@@ -33,14 +37,21 @@ cp .env.example .env
 | `VOTE_DELAY_MS` | 点赞间隔（毫秒） |
 | `SCAN_INTERVAL_MINUTES` | 扫描间隔（分钟） |
 
-## 热重载
+### Hive
 
-运行期间修改 `.env` 文件，下次扫描自动生效，无需重启。
+| 变量 | 说明 |
+|------|------|
+| `HIVE_ACCOUNT` | Hive 用户名（不带 @） |
+| `HIVE_POSTING_KEY` | Hive Posting 私钥（WIF 格式） |
+| `HIVE_API_URL` | API 节点列表，逗号分隔，自动故障切换 |
+| `HIVE_FOLLOWING` | 要点赞的作者及权重：`user1:100,user2:50` |
+| `HIVE_VOTE_INTERVAL` | 点赞间隔（分钟） |
 
 ## 使用
 
+### Steem
+
 ```bash
-# 运行（立即扫描一次，之后每隔设定时间重复）
 node index.js
 
 # 后台运行
@@ -48,6 +59,24 @@ nohup node index.js >> vote.log 2>&1 &
 
 # 查看日志
 tail -f vote.log
+```
+
+### Hive
+
+```bash
+# 安装 Python 依赖
+python3 -m venv venv
+source venv/bin/activate
+pip install beem python-dotenv
+
+# 运行
+python3 hive_blog_robot.py
+
+# 后台运行
+nohup venv/bin/python3 hive_blog_robot.py &
+
+# 查看日志
+tail -f hiveBlogOutput.log
 ```
 
 ## 安全提醒
