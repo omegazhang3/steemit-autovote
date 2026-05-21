@@ -76,7 +76,7 @@ python3 hive_vote.py
 nohup venv/bin/python3 hive_vote.py &
 
 # 查看日志
-tail -f hive_steemit_vote.log
+tail -f hive_vote.log
 ```
 
 ## 安全提醒

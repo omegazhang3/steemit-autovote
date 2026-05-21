@@ -76,7 +76,7 @@ python3 hive_vote.py
 nohup venv/bin/python3 hive_vote.py &
 
 # Logs
-tail -f hive_steemit_vote.log
+tail -f hive_vote.log
 ```
 
 ## Security
