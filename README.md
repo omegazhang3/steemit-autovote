@@ -52,10 +52,10 @@ Edit `.env` with your credentials:
 ### Steem
 
 ```bash
-node index.js
+node steemit_vote.js
 
 # Background
-nohup node index.js >> vote.log 2>&1 &
+nohup node steemit_vote.js >> vote.log 2>&1 &
 
 # Logs
 tail -f vote.log

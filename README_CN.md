@@ -52,10 +52,10 @@ cp .env.example .env
 ### Steem
 
 ```bash
-node index.js
+node steemit_vote.js
 
 # 后台运行
-nohup node index.js >> vote.log 2>&1 &
+nohup node steemit_vote.js >> vote.log 2>&1 &
 
 # 查看日志
 tail -f vote.log
