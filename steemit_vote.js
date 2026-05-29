@@ -1,6 +1,23 @@
-require('dotenv').config();
-const steem = require('steem');
+// 自动给所有 console 输出加时间戳，同时写入日志文件
 const fs = require('fs');
+require('dotenv').config();
+const _origLog = console.log;
+const _origErr = console.error;
+const _origWarn = console.warn;
+const ts = () => {
+  const opt = process.env.TIMEZONE ? { timeZone: process.env.TIMEZONE } : {};
+  return new Date().toLocaleString('zh-CN', { hour12: false, ...opt });
+};
+const writeLog = (level, args) => {
+  const logFile = process.env.STEEMIT_LOG_FILE || 'steemit_vote.log';
+  const line = `[${ts()}] [${level}] ${args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')}\n`;
+  try { fs.appendFileSync(logFile, line); } catch (_) {}
+};
+console.log   = (...a) => { _origLog(`[${ts()}]`, ...a);   writeLog('INFO',  a); };
+console.error = (...a) => { _origErr(`[${ts()}]`, ...a);  writeLog('ERROR', a); };
+console.warn  = (...a) => { _origWarn(`[${ts()}]`, ...a);  writeLog('WARN',  a); };
+
+const steem = require('steem');
 const path = require('path');
 const dotenv = require('dotenv');
 
@@ -226,7 +243,7 @@ async function run() {
   // 每次运行前重新加载配置，修改 .env 后无需重启
   applyConfig();
 
-  console.log(`\n🔍 [${new Date().toLocaleString()}] === Scanning ===`);
+  console.log('🔍 === Scanning ===');
   console.log(`👤 Voter: @${voter}`);
   console.log(`📋 Authors: ${authors.map(a => '@' + a).join(', ')}`);
   console.log(`⚖️  Weight: ${weight / 100}%`);

@@ -13,6 +13,8 @@ Auto-vote the latest articles from specified Steem/Hive authors and claim pendin
 - ⏱️ Configurable scan interval for continuous monitoring
 - 🐝 **Hive support** — auto-vote Hive bloggers with node failover
 - 🔄 Hot reload — modify `.env` while running, no restart needed
+- 🕐 Timestamped logs with configurable timezone (`TIMEZONE`)
+- 📁 Configurable log file paths (`STEEMIT_LOG_FILE`, `HIVE_LOG_FILE`)
 
 ## Setup
 
@@ -36,6 +38,8 @@ Edit `.env` with your credentials:
 | `STEEM_API_URL` | Comma-separated API nodes for failover |
 | `VOTE_DELAY_MS` | Delay between votes (ms) |
 | `SCAN_INTERVAL_MINUTES` | How often to scan (minutes) |
+| `TIMEZONE` | Log timezone (e.g. `Asia/Shanghai`, `UTC`), default: machine local time |
+| `STEEMIT_LOG_FILE` | Log file path, default: `steemit_vote.log` |
 
 ### Hive
 
@@ -46,6 +50,7 @@ Edit `.env` with your credentials:
 | `HIVE_API_URL` | Comma-separated API nodes for failover |
 | `HIVE_FOLLOWING` | Authors to vote: `user1:weight1,user2:weight2` |
 | `HIVE_VOTE_INTERVAL` | Vote interval in minutes |
+| `HIVE_LOG_FILE` | Log file path, default: `hive_vote.log` |
 
 ## Usage
 
@@ -54,8 +59,8 @@ Edit `.env` with your credentials:
 ```bash
 node steemit_vote.js
 
-# Background
-nohup node steemit_vote.js >> steemit_vote.log 2>&1 &
+# Background (logs auto-written to STEEMIT_LOG_FILE)
+nohup node steemit_vote.js &
 
 # Logs
 tail -f steemit_vote.log

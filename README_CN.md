@@ -13,6 +13,8 @@
 - ⏱️ 可配置扫描间隔，持续监控
 - 🐝 **Hive 支持** — 自动点赞 Hive 博客，支持节点故障切换
 - 🔄 热重载 — 运行期间修改 `.env` 自动生效，无需重启
+- 🕐 日志自动带时间戳，时区可配置（`TIMEZONE`）
+- 📁 日志文件路径可配置（`STEEMIT_LOG_FILE`、`HIVE_LOG_FILE`）
 
 ## 安装
 
@@ -36,6 +38,8 @@ cp .env.example .env
 | `STEEM_API_URL` | API 节点列表，逗号分隔，自动故障切换 |
 | `VOTE_DELAY_MS` | 点赞间隔（毫秒） |
 | `SCAN_INTERVAL_MINUTES` | 扫描间隔（分钟） |
+| `TIMEZONE` | 日志时区（如 `Asia/Shanghai`、`UTC`），默认机器本地时间 |
+| `STEEMIT_LOG_FILE` | 日志文件路径，默认 `steemit_vote.log` |
 
 ### Hive
 
@@ -46,6 +50,7 @@ cp .env.example .env
 | `HIVE_API_URL` | API 节点列表，逗号分隔，自动故障切换 |
 | `HIVE_FOLLOWING` | 要点赞的作者及权重：`user1:100,user2:50` |
 | `HIVE_VOTE_INTERVAL` | 点赞间隔（分钟） |
+| `HIVE_LOG_FILE` | 日志文件路径，默认 `hive_vote.log` |
 
 ## 使用
 
@@ -54,8 +59,8 @@ cp .env.example .env
 ```bash
 node steemit_vote.js
 
-# 后台运行
-nohup node steemit_vote.js >> steemit_vote.log 2>&1 &
+# 后台运行（日志自动写入 STEEMIT_LOG_FILE）
+nohup node steemit_vote.js &
 
 # 查看日志
 tail -f steemit_vote.log

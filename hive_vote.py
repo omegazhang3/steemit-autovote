@@ -7,7 +7,11 @@ import traceback
 from dotenv import load_dotenv
 from beem import Hive
 from beem.price import Price
-from datetime import datetime
+from datetime import datetime, timezone
+try:
+    from zoneinfo import ZoneInfo  # Python 3.9+
+except ImportError:
+    from backports.zoneinfo import ZoneInfo
 from beem.market import Market
 from beem.account import Account
 from beem.comment import Comment
@@ -76,10 +80,23 @@ class NodeManager:
             if self.current_index >= len(self.nodes):
                 self.current_index = 0
 
+class TZFormatter(logging.Formatter):
+    """日志格式化器：支持 TIMEZONE 环境变量，未设置则用机器本地时间"""
+    def __init__(self, fmt=None, datefmt=None):
+        super().__init__(fmt=fmt, datefmt=datefmt)
+        tz_name = os.environ.get("TIMEZONE")
+        self._tz = ZoneInfo(tz_name) if tz_name else None
+
+    def formatTime(self, record, datefmt=None):
+        dt = datetime.fromtimestamp(record.created, tz=self._tz)
+        if datefmt:
+            return dt.strftime(datefmt)
+        return dt.isoformat()
+
 log_format = "%(asctime)s - %(levelname)s - %(message)s"
 date_format = "%Y-%m-%d %H:%M:%S"
-formatter = logging.Formatter(fmt=log_format, datefmt=date_format)
-file_handler = logging.FileHandler("hive_vote.log")
+formatter = TZFormatter(fmt=log_format, datefmt=date_format)
+file_handler = logging.FileHandler(os.environ.get("HIVE_LOG_FILE", "hive_vote.log"))
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 logger = logging.getLogger()
